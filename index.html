@@ -1187,19 +1187,10 @@ tr:hover td{background:var(--tr-hover);}
    ============================================================ */
 const JBIN_KEY='$2a$10$03HxkCKTfh16mSGbumWP5Oc7Qlw3i8t/noiBRJf2PERgW53gkT332';
 const JBIN_BIN_KEY='jbin_bin_id';
-// ⚠️ IMPORTANTE: cole aqui o ID do bin do dispositivo que já funciona.
-// No console do navegador (F12) execute: localStorage.getItem('jbin_bin_id')
-// Depois substitua null pelo ID entre aspas, ex: '686abc123def456'
-const JBIN_FIXED_ID = null;
 let _dbCache=null;
 let _saveTimer=null;
 
-function getBinId(){
-  // Usa o ID fixo (embutido no código) se disponível — garante que todos
-  // os dispositivos acessem o mesmo banco, independente do localStorage.
-  if(JBIN_FIXED_ID) return JBIN_FIXED_ID;
-  return localStorage.getItem(JBIN_BIN_KEY)||null;
-}
+function getBinId(){ return localStorage.getItem(JBIN_BIN_KEY)||null; }
 
 function setSyncStatus(status){
   const el=document.getElementById('sync-indicator');
@@ -1352,8 +1343,6 @@ async function seed(){
   try{
     let binId=getBinId();
     if(binId){
-      // Garantir que o ID fixo também está salvo no localStorage local
-      localStorage.setItem(JBIN_BIN_KEY, binId);
       // Bin já existe — carregar da nuvem
       showLoadingScreen('Carregando dados da turma…');
       const data=await dbLoad();
@@ -1379,9 +1368,6 @@ async function seed(){
       // Salvar no localStorage como cache
       Object.keys(defaults).forEach(k=>localStorage.setItem(k,JSON.stringify(defaults[k])));
       console.log('✅ Banco criado na nuvem, ID:',id);
-      // Mostrar ID para o usuário copiar e embutir no código
-      showToast('✅ Banco criado! ID: '+id+' — veja o console (F12)');
-      console.warn('🔑 COLE ESTE ID NO CÓDIGO (JBIN_FIXED_ID): "'+id+'"');
     }
   }catch(e){
     console.error('Erro no init:',e);
